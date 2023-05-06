@@ -1,3 +1,6 @@
+body {
+  background-color: rgba(0, 0, 0, 0.623);
+}
 .anuncio {
   margin: 0, auto;
   color: blue;
@@ -6,4 +9,91 @@
 
 h1 {
   text-align: center;
+  color: rgba(255, 255, 255, 0.815);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  margin: 20px;
+}
+
+.item {
+  margin-top: 10px;
+  text-align: center;
+  height: 3rem;
+}
+
+.funcion {
+  margin: auto;
+}
+
+.boton {
+  height: 3rem;
+}
+.datos {
+  margin: auto;
+  margin-bottom: 2rem;
+  width: 80%;
+}
+
+.botones {
+  text-align: center;
+}
+.container {
+  display: grid;
+  grid-template-columns: 0.4fr 1fr;
+  grid-template-rows: 2fr 2fr 2fr;
+  gap: 0px 0px;
+  grid-template-areas:
+    "operatoria servicios"
+    "operatoria servicios"
+    "informacion total";
+}
+.operatoria {
+  grid-area: operatoria;
+  display: flex;
+  flex-direction: column;
+  width: auto;
+}
+.servicios {
+  grid-area: servicios;
+  display: flex;
+  flex-direction: column;
+}
+.info {
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  border: 2px black solid;
+}
+
+.error {
+  margin-left: 3rem;
+  font-size: 1.5rem;
+  color: rgba(90, 0, 0, 0.479);
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.459);
+}
+
+.servicios {
+  display: flex;
+  flex-direction: column;
+}
+.nuevoServicio {
+  background-color: rgba(255, 255, 255, 0.301);
+  text-align: center;
+  border: 2px black solid;
+  color: white;
+  font-weight: bolder;
+}
+
+.total {
+  background-color: rgba(255, 255, 255, 0.295);
+  text-align: center;
+  height: auto;
+  width: 50%;
+  margin: auto;
+  color: white;
 }

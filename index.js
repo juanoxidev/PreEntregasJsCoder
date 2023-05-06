@@ -1,36 +1,32 @@
 // El siguiente codigo solicita al usuario que ingrese sus servicios para verlos reflejados en la pagina y ver el monto total de lo que debe pagar.
-let strContinuar;
-let intTotalMonto = 0;
-let arrayServicios = [];
+const botonAgregar = document.getElementById("agregar");
+const botonAsc = document.getElementById("asc");
+const botonDesc = document.getElementById("desc");
+const info = document.getElementById("info");
+const servicios = document.getElementById("servicios");
+const nuevoServicio = document.getElementsByClassName("nuevoServicio");
+const total = document.getElementById("total");
+let montos = obtenerMontosLS();
+let arrayServicios = obtenerServiciosLS();
 
-do {
-  let strServicio = pedirServicio(); // Se guarda en una variable local el servicio del usuario Se evalua si ese servicio ingresado es valido.
-  let intMonto = pedirMonto(); // Si el servicio es valido, se le pide el monto de su factura/gasto. El monto debe ser mayor a 0, Si es valido continua el programa, si es invalido se le va a pedir que ingrese un monto de nuevo.
-  let strFvto = pedirFvto();
-  intTotalMonto += intMonto; // Se agrega el monto de la factura actual, al monto total de gastos que tiene el usuario
-  document.write(
-    `<h4 class="anuncio"> Servicio: ${strServicio.toUpperCase()} --- Monto : $${intMonto} --- Fecha Vto: ${strFvto} <br></h4>`
-  );
+botonAgregar.addEventListener("click", validarForm);
+botonAsc.addEventListener("click", ordenarMaxMin);
+botonDesc.addEventListener("click", ordenarMinMax);
 
-  agregar(strServicio, intMonto, strFvto);
-  strContinuar = prompt("Desea continuar? (S para continuar)");
-} while (
-  strContinuar.trim().charAt(0).toUpperCase() === "S" &&
-  strContinuar !== null
-);
-
-if (intTotalMonto > 0) {
-  // Una vez que se opta por no ingresar mas servicios, se muestra en la pagina el monto total que se debe pagar por todos los servicios anotados. En caso de ser 0 se indica que no hay ninguna factura o gasto ingresado.
-  document.write(
-    ` <h3 class="anuncio"> ---------------- Total: $${intTotalMonto} ---------------- </h3>`
-  );
-} else {
-  document.write(
-    ` <h2 class="anuncio"> Usted no ha ingresado ninguna factura/gasto. </h2>`
-  );
+function validarForm() {
+  console.log("Ejecutando validacion");
+  let nombre = document.getElementById("nombre").value;
+  let monto = document.getElementById("monto").valueAsNumber;
+  let fecha = document.getElementById("fecha").value;
+  // let fechaVto = new Date(fecha).toLocaleDateString(); // como se debe mostrar
+  if (servicioValidado(nombre) && montoValido(monto) && fechaValida(fecha)) {
+    agregar(nombre, monto, fecha);
+    console.log(arrayServicios);
+  } else {
+    console.log;
+  }
 }
 
-console.table(arrayServicios);
 // CONSTRUCTOR
 function Servicio(strNombre, intMonto, strFvto) {
   this.nombre = strNombre.toUpperCase();
@@ -45,21 +41,48 @@ function Servicio(strNombre, intMonto, strFvto) {
 function agregar(nombre, monto, fvto) {
   //Agregar solo tipo Servicio, creo que en este metodo no pasa por las validaciones.
   let servicio = new Servicio(nombre, monto, fvto);
-  arrayServicios.push(servicio);
+  if (buscarServicio(servicio.nombre) == -1) {
+    arrayServicios.push(servicio);
+    GenerarDOMServicio(servicio);
+    console.log(montos);
+    montos.push(servicio.monto);
+    let importeFinal = sumarImportes(montos);
+    modificarDOMTotal(importeFinal);
+    let montoJSON = JSON.stringify(montos);
+    localStorage.setItem("Monto", montoJSON);
+    let servicioJSON = JSON.stringify(arrayServicios);
+    localStorage.setItem("Servicios", servicioJSON);
+  } else {
+    let emergente = document.createElement("h3");
+    emergente.className = "error";
+    emergente.textContent = "ERROR: SERVICIO YA CARGADO";
+    info.appendChild(emergente);
+  }
 }
-
+// ACUMULADOR
 // ORDENAR
 
 function ordenarMaxMin() {
   // To sort an array of objects, you use the sort() method and provide a comparison function that determines the order of objects.
-  arrayServicios.sort(
-    (s1, s2) => (s1.monto < s2.monto ? 1 : s1.monto > s2.monto ? -1 : 0) // ifs one line
-  );
+  arrayServicios.sort(function (s1, s2) {
+    if (s1.monto < s2.monto) {
+      return 1;
+    }
+    if (s1.monto > s2.monto) {
+      return -1;
+    }
+    return 0; // ifs one line
+  });
+  servicios.innerHTML = "";
+  arrayServicios.forEach((s) => GenerarDOMServicio(s));
 }
+
 function ordenarMinMax() {
   arrayServicios.sort(
     (s1, s2) => (s1.monto > s2.monto ? 1 : s1.monto < s2.monto ? -1 : 0) // ifs one line
   );
+  servicios.innerHTML = ""; // borra lo q habia en id servicios
+  arrayServicios.forEach((s) => GenerarDOMServicio(s)); // genera el dom nuevamente con la lista ordenada
 }
 
 // MOSTRAR
@@ -81,13 +104,14 @@ function maxMonto(limite) {
 }
 
 /* function buscarServicio(servicio) {
-  let servicioEncontrado = arrayServicios.find((s) => s.nombre === servicio); // devuelve el objeto , si el valor no existe retorna undefined
-  if (servicioEncontrado == undefined) {
-    console.log("No existe");
-  }
-  return servicioEncontrado;
-}
-*/
+      let servicioEncontrado = arrayServicios.find((s) => s.nombre === servicio); // devuelve el objeto , si el valor no existe retorna undefined
+      if (servicioEncontrado == undefined) {
+        console.log("No existe");
+      }
+      return servicioEncontrado;
+    }
+    */
+
 function buscarServicio(servicio) {
   return arrayServicios.findIndex((s) => s.nombre === servicio); // El método findIndex() devuelve el índice del primer elemento de un array que cumpla con la función de prueba proporcionada. En caso contrario devuelve -1.
 }
@@ -114,6 +138,11 @@ function montoValido(strMonto) {
   let numero = parseFloat(strMonto);
   if (!isNaN(numero) && numero != null && numero > 0) {
     validado = true;
+  } else {
+    let emergente = document.createElement("h3");
+    emergente.className = "error";
+    emergente.textContent = "ERROR: MONTO INVALIDO";
+    info.appendChild(emergente);
   }
   return validado;
 }
@@ -126,53 +155,82 @@ function servicioValidado(strServicioGasto) {
     strServicioGasto !== ""
   ) {
     validado = true;
+  } else {
+    let emergente = document.createElement("h3");
+    emergente.className = "error";
+    emergente.textContent = "ERROR: NOMBRE INVALIDO";
+    info.appendChild(emergente);
   }
   return validado;
 }
 
 function fechaValida(strFvto) {
   let validado = false;
-  if (
-    isNaN(strFvto) &&
-    strFvto !== null &&
-    strFvto !== "" &&
-    strFvto.length == 5
-  ) {
+  if (isNaN(strFvto) && strFvto !== null && strFvto !== "") {
     validado = true;
+  } else {
+    let emergente = document.createElement("h3");
+    emergente.className = "error";
+    emergente.textContent = "ERROR: FECHA INVALIDA";
+    info.appendChild(emergente);
   }
   return validado;
 }
 
-function pedirMonto() {
-  let strMonto;
-  strMonto = prompt("¿Cual es el monto que desea registrar?");
-  while (montoValido(strMonto) !== true) {
-    alert("Ud. ingreso un monto invalido. Ingrese un numero > 0.");
-    strMonto = prompt("¿Cual es el monto que desea registrar?");
-  }
-  return parseFloat(strMonto);
+// GENERAR ETIQUETAS DE SERVICIOS CON DOM
+
+function GenerarDOMServicio(servicio) {
+  let fechaVto = new Date(servicio.fvto).toLocaleDateString();
+  let nuevoServicio = document.createElement("div");
+  nuevoServicio.className = "nuevoServicio";
+  nuevoServicio.innerHTML = `
+        <h3 class="nuevoServicio_nombre">Servicio: ${servicio.nombre}</h3>
+        <h4 class="nuevoServicio_monto">Importe : $${servicio.monto}.-</h4>
+        <h4 class="nuevoServicio_fecha">Vencimiento: ${fechaVto}</h4>
+    `;
+  servicios.appendChild(nuevoServicio);
 }
 
-function pedirFvto() {
-  let strFvto;
-  strFvto = prompt("¿Cual es la fecha de vencimiento? (DD/MM)");
-  while (fechaValida(strFvto) !== true) {
-    alert(
-      "Ud. ingreso una fecha invalida. Ingrese una fecha con este formato (DD/MM)."
-    );
-    strFvto = prompt("¿Cual es la fecha de vencimiento?");
-  }
-  return strFvto;
+function modificarDOMTotal(monto) {
+  total.innerHTML = "";
+  let importeTotal = document.createElement("div");
+  importeTotal.className = "importeTotal";
+  importeTotal.innerHTML = `
+        <h2 class="montoTotal">TOTAL: $${monto}</h3>
+    `;
+  total.appendChild(importeTotal);
 }
 
-function pedirServicio() {
-  let strServicio;
-  strServicio = prompt("¿Qué servicio/gasto desea agregar? ");
-  while (servicioValidado(strServicio) !== true) {
-    alert(
-      "Ud. ingreso un servicio/gasto invalido. Ingrese el nombre del servicio correctamente."
-    );
-    strServicio = prompt("¿Qué servicio/gasto desea agregar?");
+function sumarImportes(montos) {
+  return montos.reduce((acc, n) => acc + n, 0);
+}
+
+//STORAGE
+//JSON.parse recibe un texto JSON como parametro y devuelve un objeto.
+//JSON.stringify acepta un objeto como parametro y devuelve la forma de textoJSON equivalente.
+
+function obtenerServiciosLS() {
+  let arraylist = [];
+  if (localStorage.getItem("Servicios")) {
+    arraylist = JSON.parse(localStorage.getItem("Servicios"));
+    arraylist.forEach((s) => GenerarDOMServicio(s));
+  } else {
+    localStorage.setItem("Servicios", "[]");
   }
-  return strServicio;
+  return arraylist;
+}
+
+function obtenerMontosLS() {
+  let monto = 0;
+  let total = 0;
+  if (localStorage.getItem("Monto")) {
+    monto = JSON.parse(localStorage.getItem("Monto"));
+    console.log(monto);
+    total = sumarImportes(monto);
+    console.log(total);
+    modificarDOMTotal(total);
+  } else {
+    localStorage.setItem("Monto", "[]");
+  }
+  return monto;
 }
