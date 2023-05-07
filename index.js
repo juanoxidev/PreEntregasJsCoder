@@ -6,24 +6,21 @@ const info = document.getElementById("info");
 const servicios = document.getElementById("servicios");
 const nuevoServicio = document.getElementsByClassName("nuevoServicio");
 const total = document.getElementById("total");
+const botonEliminar = document.getElementById("eliminar");
 let montos = obtenerMontosLS();
 let arrayServicios = obtenerServiciosLS();
 
 botonAgregar.addEventListener("click", validarForm);
 botonAsc.addEventListener("click", ordenarMaxMin);
 botonDesc.addEventListener("click", ordenarMinMax);
+botonEliminar.addEventListener("click", eliminarServicios);
 
 function validarForm() {
-  console.log("Ejecutando validacion");
   let nombre = document.getElementById("nombre").value;
   let monto = document.getElementById("monto").valueAsNumber;
   let fecha = document.getElementById("fecha").value;
-  // let fechaVto = new Date(fecha).toLocaleDateString(); // como se debe mostrar
   if (servicioValidado(nombre) && montoValido(monto) && fechaValida(fecha)) {
     agregar(nombre, monto, fecha);
-    console.log(arrayServicios);
-  } else {
-    console.log;
   }
 }
 
@@ -116,6 +113,13 @@ function buscarServicio(servicio) {
   return arrayServicios.findIndex((s) => s.nombre === servicio); // El método findIndex() devuelve el índice del primer elemento de un array que cumpla con la función de prueba proporcionada. En caso contrario devuelve -1.
 }
 
+function eliminarServicios() {
+  localStorage.clear();
+  arrayServicios = [];
+  montos = [];
+  servicios.innerHTML = "";
+  total.innerHTML = "";
+}
 function suprimirServicio(servicio) {
   return arrayServicios.filter((s) => s.nombre != servicio); // Devuelve una lista nueva donde se excluye la condicion (s.nombre != servicio) de manera indirecta lo elimina
 }
@@ -225,9 +229,7 @@ function obtenerMontosLS() {
   let total = 0;
   if (localStorage.getItem("Monto")) {
     monto = JSON.parse(localStorage.getItem("Monto"));
-    console.log(monto);
     total = sumarImportes(monto);
-    console.log(total);
     modificarDOMTotal(total);
   } else {
     localStorage.setItem("Monto", "[]");

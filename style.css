@@ -39,6 +39,10 @@ h1 {
 }
 
 .botones {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  margin: auto;
   text-align: center;
 }
 .container {
