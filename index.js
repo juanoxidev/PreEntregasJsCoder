@@ -56,6 +56,15 @@ function agregar(nombre, monto, fecha) {
   //Agregar solo tipo Servicio, creo que en este metodo no pasa por las validaciones.
   let servicio = new Servicio(nombre, monto, fecha);
   if (buscarServicioNombre(servicio.nombre) == -1) {
+    Swal.fire({
+      color: "#ffffff",
+      background: "#000000",
+      position: "center",
+      icon: "success",
+      title: `SERVICIO AGREGADO`,
+      showConfirmButton: false,
+      timer: 1500,
+    });
     arrayServicios.push(servicio);
     GenerarDOMServicio(servicio);
     montos.push(servicio.monto);
@@ -66,10 +75,16 @@ function agregar(nombre, monto, fecha) {
     let servicioJSON = JSON.stringify(arrayServicios);
     localStorage.setItem("Servicios", servicioJSON);
   } else {
-    let emergente = document.createElement("h3");
-    emergente.className = "error";
-    emergente.textContent = "ERROR: SERVICIO YA CARGADO";
-    info.appendChild(emergente);
+    Swal.fire({
+      color: "#ffffff",
+      background: "#000000",
+      position: "center",
+      icon: "error",
+      title: `ERROR EL SERVICIO YA FUE CREADO`,
+      text: `AGREGUE OTRO SERVICIO`,
+      showConfirmButton: false,
+      timer: 1500,
+    });
   }
 }
 // ACUMULADOR
@@ -133,12 +148,36 @@ function buscarServicioNombre(nombre) {
 }
 
 function eliminarTodo() {
-  localStorage.clear();
-  arrayServicios = [];
-  montos = [];
-  servicios.innerHTML = "";
-  total.innerHTML = "";
+  Swal.fire({
+    background: "#000000",
+    color: "#ffffff",
+    position: "center",
+    title: "ESTAS SEGURO?",
+    text: "SE ELIMINARAN TODOS LOS SERVICIOS",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Si, estoy seguro",
+    cancelButtonText: "Cancelar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        background: "#000000",
+        color: "#ffffff",
+        position: "center",
+        title: "LOS SERVICIOS HAN SIDO ELIMINADOS",
+        icon: "success",
+      });
+      localStorage.clear();
+      arrayServicios = [];
+      montos = [];
+      servicios.innerHTML = "";
+      total.innerHTML = "";
+    }
+  });
 }
+
 function suprimirServicio(id) {
   return arrayServicios.filter((s) => s.id != id); // Devuelve una lista nueva donde se excluye la condicion (s.nombre != servicio) de manera indirecta lo elimina
 }
@@ -152,10 +191,16 @@ function montoValido(strMonto) {
   if (!isNaN(numero) && numero != null && numero > 0) {
     validado = true;
   } else {
-    let emergente = document.createElement("h3");
-    emergente.className = "error";
-    emergente.textContent = "ERROR: MONTO INVALIDO";
-    info.appendChild(emergente);
+    Swal.fire({
+      color: "#ffffff",
+      background: "#000000",
+      position: "center",
+      icon: "error",
+      title: `ERROR: MONTO INVALIDO`,
+      text: `COLOQUE UN NÚMERO MAYOR A 0`,
+      showConfirmButton: false,
+      timer: 1500,
+    });
   }
   return validado;
 }
@@ -169,11 +214,16 @@ function servicioValidado(strServicioGasto) {
   ) {
     validado = true;
   } else {
-    let emergente = document.createElement("h3");
-    emergente.className = "error";
-    emergente.textContent = "ERROR: NOMBRE INVALIDO";
-    console.log("ERROR: NOMBRE INVALIDO");
-    info.appendChild(emergente);
+    Swal.fire({
+      color: "#ffffff",
+      background: "#000000",
+      position: "center",
+      icon: "error",
+      title: `ERROR: NOMBRE INVALIDO`,
+      text: `COLOQUE UN NOMBRE AL SERVICIO`,
+      showConfirmButton: false,
+      timer: 1500,
+    });
   }
   return validado;
 }
@@ -183,10 +233,16 @@ function fechaValida(strFvto) {
   if (isNaN(strFvto) && strFvto !== null && strFvto !== "") {
     validado = true;
   } else {
-    let emergente = document.createElement("h3");
-    emergente.className = "error";
-    emergente.textContent = "ERROR: FECHA INVALIDA";
-    info.appendChild(emergente);
+    Swal.fire({
+      color: "#ffffff",
+      background: "#000000",
+      position: "center",
+      icon: "error",
+      title: `ERROR: FECHA INVALIDA`,
+      text: `INDIQUE UNA FECHA EN EL CALENDARIO`,
+      showConfirmButton: false,
+      timer: 1500,
+    });
   }
   return validado;
 }
@@ -209,10 +265,33 @@ function GenerarDOMServicio(servicio) {
 
   let eliminarItemServicio = servicioDOM.querySelector(".botonEliminar");
   eliminarItemServicio.addEventListener("click", () => {
-    eliminarServicio(servicio.id); // ELIMINO EL SERVICIO DEL ARRAYSERVICIOS
-    actualizarServiciosLS(); // ACTUALIZO ARRAY SERVICIO Y LS SERVICIOS
-    actualizarMontoLS(); // ACTUALIZO ARRAY MONTO Y LS MONTO
-    servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM
+    Swal.fire({
+      background: "#000000",
+      color: "#ffffff",
+      position: "center",
+      title: "ESTAS SEGURO?",
+      text: "SE ELIMINARA EL SERVICIO",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, estoy seguro",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          background: "#000000",
+          color: "#ffffff",
+          position: "center",
+          title: "EL SERVICIO HA SIDO ELIMINADO",
+          icon: "success",
+        });
+        eliminarServicio(servicio.id); // ELIMINO EL SERVICIO DEL ARRAYSERVICIOS
+        actualizarServiciosLS(); // ACTUALIZO ARRAY SERVICIO Y LS SERVICIOS
+        actualizarMontoLS(); // ACTUALIZO ARRAY MONTO Y LS MONTO
+        servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM
+      }
+    });
   });
 
   function eliminarServicio(id) {
@@ -233,7 +312,6 @@ function modificarDOMTotal(monto) {
     total.appendChild(importeTotal);
   } else {
     total.innerHTML = "";
-    console.log("No hay ningun servicio cargado");
   }
 }
 
@@ -345,7 +423,15 @@ function cambiarApesos() {
   let montos = actualizarMonto();
   let importeFinal = sumarImportes(montos);
   modificarDOMTotal(importeFinal);
-  console.log("Montos cambiados a Pesos Arg ($)");
+  Swal.fire({
+    color: "#ffffff",
+    background: "#000000",
+    position: "center",
+    icon: "success",
+    title: `MONTOS CAMBIADOS A PESOS ARG ($)`,
+    showConfirmButton: false,
+    timer: 1500,
+  });
 }
 
 function cambiarADolar() {
@@ -363,7 +449,16 @@ function cambiarADolar() {
       });
       let importeFinal = sumarImportes(montosDolar);
       modificarDOMTotalDolar(importeFinal);
-      console.log(`Montos cambiados a Dolar (U$D) - Cotizacion $${blue}.-`);
+      Swal.fire({
+        color: "#ffffff",
+        background: "#000000",
+        position: "center",
+        icon: "success",
+        title: `MONTOS CAMBIADOS A DOLAR (U$D)`,
+        text: `COTIZACIÓN $${blue}.-`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
     });
 }
 
@@ -403,7 +498,7 @@ function GenerarDOMServicioUSA(servicio, cotizacionDolar) {
     eliminarServicio(servicio.id); // ELIMINO EL SERVICIO DEL ARRAYSERVICIOS
     actualizarServiciosLS(); // ACTUALIZO ARRAY SERVICIO Y LS SERVICIOS
     actualizarMontoLS(); // ACTUALIZO ARRAY MONTO Y LS MONTO
-    servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM
+    servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM;
   });
 
   function eliminarServicio(id) {
