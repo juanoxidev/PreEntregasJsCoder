@@ -4,7 +4,6 @@ const botonAsc = document.getElementById("asc");
 const botonDesc = document.getElementById("desc");
 const info = document.getElementById("info");
 const servicios = document.getElementById("servicios");
-const nuevoServicio = document.getElementsByClassName("nuevoServicio");
 const total = document.getElementById("total");
 const eliminarTodos = document.getElementById("eliminarTodo");
 const pesoArg = document.getElementById("arg");
@@ -16,6 +15,13 @@ botonAgregar.addEventListener("click", validarForm);
 botonAsc.addEventListener("click", ordenarMaxMin);
 botonDesc.addEventListener("click", ordenarMinMax);
 eliminarTodos.addEventListener("click", eliminarTodo);
+pesoArg.addEventListener("click", cambiarApesos);
+dolar.addEventListener("click", () => {
+  cambiarADolar(); // API CRIPTOYA - COTIZACION DOLAR
+  setInterval(() => {
+    cambiarADolar();
+  }, 60000); // cada 1 min va a volver a volver a consultar el precio del dolar
+});
 
 function validarForm() {
   let nombre = document.getElementById("nombre").value;
@@ -268,8 +274,6 @@ function obtenerMontosLS() {
   return monto;
 }
 
-// Metodo de fechas
-
 // function mesValido(numero) {
 //   let validado = false;
 //   if (0 < numero && numero <= 12) {
@@ -310,11 +314,14 @@ function obtenerMontosLS() {
 //   return `${diaFormateado}/${mesFormateado}/${anioFormateado}`;
 // }
 
+// Metodo de fecha
 function fechaFormateada(fecha) {
   fechaCortada = fecha.split("-"); // corto la fecha String por los "-" y lo guardo en un Array
   fechaForma = `${fechaCortada[2]}/${fechaCortada[1]}/${fechaCortada[0]}`; // de ese array agarro el dia pos [2], el mes [1], anio [0]
   return fechaForma;
 }
+
+// Actualizar de forma local
 function actualizarMonto() {
   let montos = [];
   arrayServicios.forEach((s) => {
@@ -332,4 +339,65 @@ function actualizarMontoLS() {
 
 function actualizarServiciosLS() {
   localStorage.setItem("Servicios", JSON.stringify(arrayServicios));
+}
+
+// Metodo de monedas a mostrar - uso de API
+function cambiarApesos() {
+  servicios.innerHTML = "";
+  arrayServicios.forEach((s) => {
+    GenerarDOMServicio(s);
+  });
+  let montos = actualizarMonto();
+  let importeFinal = sumarImportes(montos);
+  modificarDOMTotal(importeFinal);
+  console.log("Montos cambiados a Pesos Arg ($)");
+}
+
+function cambiarADolar() {
+  fetch("https://criptoya.com/api/dolar") // FETCH: me conecto con la api
+    .then((response) => response.json()) // PROMESA: que la respuesta q me de la api me lo convierta en un objeto
+    .then(({ blue }) => {
+      let montosDolar = [];
+      servicios.innerHTML = "";
+      arrayServicios.forEach((s) => {
+        let cotizacionDolar = s.monto / blue;
+        montosDolar.push(cotizacionDolar);
+        GenerarDOMServicioUSA(s, cotizacionDolar);
+      });
+      let importeFinal = sumarImportes(montosDolar);
+      modificarDOMTotalDolar(importeFinal);
+      console.log(`Montos cambiados a Dolar (U$D) - Cotizacion $${blue}.-`);
+    }); // PROMESA:consultamos por la data que nos da el .JSON, en este caso usamos desestrucutracion para traernos el dolar blue;
+}
+
+function modificarDOMTotalDolar(monto) {
+  if (monto > 0) {
+    let montoRedondeado = Math.round(monto);
+    total.innerHTML = "";
+    let importeTotal = document.createElement("div");
+    importeTotal.className = "importeTotal";
+    importeTotal.innerHTML = `
+        <h2 class="montoTotal">💰 $${montoRedondeado}.- (DOLAR U$D) 💰</h3>
+    `;
+    total.appendChild(importeTotal);
+  } else {
+    total.innerHTML = "";
+    console.log("No hay ningun servicio cargado");
+  }
+}
+
+function GenerarDOMServicioUSA(servicio, cotizacionDolar) {
+  let fecha = fechaFormateada(servicio.fvto);
+  let cotizacionRedondeada = Math.round(cotizacionDolar);
+  let servicioDOM = document.createElement("div");
+  servicioDOM.id = `${servicio.id}`;
+  servicioDOM.className = "servicioCreado";
+  servicioDOM.innerHTML = `
+  <div class="servicio_info"> 
+        <h3 class="${servicio.id}_nombre">  ${servicio.nombre} 📃</h3>
+        <h4 class="${servicio.id}_monto"> M:  $${cotizacionRedondeada}.- 💵</h4>
+        <h4 class="${servicio.id}_fecha"> F:  ${fecha} 📅 </h4>
+    </div>
+  <span class="botonEliminar">❌</div>`;
+  servicios.append(servicioDOM);
 }
