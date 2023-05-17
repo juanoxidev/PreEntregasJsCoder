@@ -257,7 +257,7 @@ function GenerarDOMServicio(servicio) {
   servicioDOM.innerHTML = `
   <div class="servicio_info"> 
         <h3 class="${servicio.id}_nombre">  ${servicio.nombre} 📃</h3>
-        <h4 class="${servicio.id}_monto"> M:  $${servicio.monto}.- 💵</h4>
+        <h4 class="${servicio.id}_monto"> M:  $ ${servicio.monto}.- 💵</h4>
         <h4 class="${servicio.id}_fecha"> F:  ${fecha} 📅 </h4>
     </div>
   <span class="botonEliminar">❌</div>`;
@@ -469,7 +469,7 @@ function modificarDOMTotalDolar(monto) {
     let importeTotal = document.createElement("div");
     importeTotal.className = "importeTotal";
     importeTotal.innerHTML = `
-        <h2 class="montoTotal">💰 $${montoRedondeado}.- (DOLAR U$D) 💰</h3>
+        <h2 class="montoTotal">💰 U$D ${montoRedondeado}.- (DOLAR) 💰</h3>
     `;
     total.appendChild(importeTotal);
   } else {
@@ -487,7 +487,7 @@ function GenerarDOMServicioUSA(servicio, cotizacionDolar) {
   servicioDOM.innerHTML = `
   <div class="servicio_info"> 
         <h3 class="${servicio.id}_nombre">  ${servicio.nombre} 📃</h3>
-        <h4 class="${servicio.id}_monto"> M:  $${cotizacionRedondeada}.- 💵</h4>
+        <h4 class="${servicio.id}_monto"> M:  U$D ${cotizacionRedondeada}.- 💵</h4>
         <h4 class="${servicio.id}_fecha"> F:  ${fecha} 📅 </h4>
     </div>
   <span class="botonEliminar">❌</div>`;
