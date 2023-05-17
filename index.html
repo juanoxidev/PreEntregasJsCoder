@@ -11,14 +11,23 @@
 
 <body>
   <main>
-    <h1> SIMULADOR DE GASTOS/FACTURAS</h1>
+    <h1> SIMULADOR DE GASTOS 💸</h1>
     <div class="container">
       <section class="operatoria">
+        <div class="monedas">
+          <h2>SELECCIONA TU MONEDA</h2>
+          <div id="arg"><img class="moneda_bandera" src="./assets/img/ar.svg" alt="pesoArg"></div>
+          <div id="usa"><img class="moneda_bandera" src="./assets/img/us.svg" alt="dolarUsa"></div>
+        </div>
         <div class="datos">
-          <form class="formulario" action="">
-            <input class="item" type="text" id="nombre" placeholder="Servicio">
-            <input class="item" type="number" id="monto" placeholder="Monto">
-            <input class="item" type="date" id="fecha" placeholder="Fecha">
+          <form id="formulario">
+            <input class="item_formulario" type="text" id="nombre" placeholder="Servicio" required>
+            <input class="item_formulario" type="number" id="monto" placeholder="Monto" required>
+            <input class="item_formulario" type="date" id="fecha" required>
+            <!-- <input class="item_formulario" type="number" id="mes" max="12" min="1" placeholder="Mes" required>
+            <input class="item_formulario" type="number" id="dia" max="31" min="1" placeholder="Dia" required> -->
+
+
           </form>
           <div class="botones">
             <button type="buttom" class="boton" id="agregar">
@@ -29,7 +38,7 @@
             </button>
             <button type="buttom" class="boton" id="asc">
               <p class="funcion">Ordenar Asc</p>
-              <button type="buttom" class="boton" id="eliminar">
+              <button type="buttom" class="boton" id="eliminarTodo">
                 <p class="funcion">Eliminar todo</p>
               </button>
           </div>
@@ -44,7 +53,6 @@
       <section id="total" class="total"></section>
     </div>
   </main>
-
 
   <script src="index.js"></script>
 </body>

@@ -7,19 +7,20 @@ body {
   text-align: center;
 }
 
-h1 {
+h1,
+h2 {
   text-align: center;
   color: rgba(255, 255, 255, 0.815);
 }
 
-.formulario {
+#formulario {
   display: flex;
   flex-direction: column;
   padding: 20px;
   margin: 20px;
 }
 
-.item {
+.item_formulario {
   margin-top: 10px;
   text-align: center;
   height: 3rem;
@@ -46,6 +47,8 @@ h1 {
   text-align: center;
 }
 .container {
+  width: 75%;
+  margin: auto;
   display: grid;
   grid-template-columns: 0.4fr 1fr;
   grid-template-rows: 2fr 2fr 2fr;
@@ -59,7 +62,6 @@ h1 {
   grid-area: operatoria;
   display: flex;
   flex-direction: column;
-  width: auto;
 }
 .servicios {
   grid-area: servicios;
@@ -81,23 +83,48 @@ h1 {
   background-color: rgba(255, 255, 255, 0.459);
 }
 
-.servicios {
-  display: flex;
-  flex-direction: column;
-}
-.nuevoServicio {
-  background-color: rgba(255, 255, 255, 0.301);
-  text-align: center;
-  border: 2px black solid;
-  color: white;
-  font-weight: bolder;
-}
-
 .total {
-  background-color: rgba(255, 255, 255, 0.295);
+  background-color: rgba(0, 0, 0, 0.295);
   text-align: center;
   height: auto;
   width: 50%;
   margin: auto;
   color: white;
+  border: 1px solid black;
+}
+
+.moneda_bandera {
+  margin: 1.5rem;
+  width: 100px;
+  border: 1px solid black;
+}
+
+.monedas {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.servicioCreado {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  background-color: rgba(0, 0, 0, 0.281);
+  border: 1px black solid;
+  color: white;
+  width: 50rem;
+  margin: 0, auto;
+}
+
+.botonEliminar {
+  position: relative;
+  width: auto;
+  background-color: rgba(0, 0, 0, 0.219);
+  border: 1px solid black;
+}
+
+.servicio_info {
+  width: auto;
 }

@@ -6,42 +6,57 @@ const info = document.getElementById("info");
 const servicios = document.getElementById("servicios");
 const nuevoServicio = document.getElementsByClassName("nuevoServicio");
 const total = document.getElementById("total");
-const botonEliminar = document.getElementById("eliminar");
+const eliminarTodos = document.getElementById("eliminarTodo");
+const pesoArg = document.getElementById("arg");
+const dolar = document.getElementById("usa");
 let montos = obtenerMontosLS();
 let arrayServicios = obtenerServiciosLS();
 
 botonAgregar.addEventListener("click", validarForm);
 botonAsc.addEventListener("click", ordenarMaxMin);
 botonDesc.addEventListener("click", ordenarMinMax);
-botonEliminar.addEventListener("click", eliminarServicios);
+eliminarTodos.addEventListener("click", eliminarTodo);
 
 function validarForm() {
   let nombre = document.getElementById("nombre").value;
   let monto = document.getElementById("monto").valueAsNumber;
   let fecha = document.getElementById("fecha").value;
+  // let mes = document.getElementById("mes").valueAsNumber;
+  // let dia = document.getElementById("dia").valueAsNumber;
   if (servicioValidado(nombre) && montoValido(monto) && fechaValida(fecha)) {
     agregar(nombre, monto, fecha);
+    info.innerHTML = "";
   }
 }
 
 // CONSTRUCTOR
-function Servicio(strNombre, intMonto, strFvto) {
+function Servicio(strNombre, intMonto, fecha) {
   this.nombre = strNombre.toUpperCase();
   this.monto = intMonto;
-  this.fvto = strFvto;
+  this.fvto = fecha;
+  this.id = generarID();
 }
 
+// function generarFecha(mes, dia) {
+//   return new Date(anioActual, mes - 1, dia, 0, 0, 0);
+// }
+function generarID() {
+  let generarID = Math.round(Math.random() * 10000);
+  while (buscarServicioID(generarID) != -1) {
+    generarID = Math.round(Math.random() * 10000);
+  }
+  return generarID;
+}
 // METODOS
 // Del array.
 
 // AGREGAR
-function agregar(nombre, monto, fvto) {
+function agregar(nombre, monto, fecha) {
   //Agregar solo tipo Servicio, creo que en este metodo no pasa por las validaciones.
-  let servicio = new Servicio(nombre, monto, fvto);
-  if (buscarServicio(servicio.nombre) == -1) {
+  let servicio = new Servicio(nombre, monto, fecha);
+  if (buscarServicioNombre(servicio.nombre) == -1) {
     arrayServicios.push(servicio);
     GenerarDOMServicio(servicio);
-    console.log(montos);
     montos.push(servicio.monto);
     let importeFinal = sumarImportes(montos);
     modificarDOMTotal(importeFinal);
@@ -109,31 +124,24 @@ function maxMonto(limite) {
     }
     */
 
-function buscarServicio(servicio) {
-  return arrayServicios.findIndex((s) => s.nombre === servicio); // El método findIndex() devuelve el índice del primer elemento de un array que cumpla con la función de prueba proporcionada. En caso contrario devuelve -1.
+function buscarServicioID(id) {
+  return arrayServicios.findIndex((s) => s.id === id); // El método findIndex() devuelve el índice del primer elemento de un array que cumpla con la función de prueba proporcionada. En caso contrario devuelve -1.
+}
+function buscarServicioNombre(nombre) {
+  return arrayServicios.findIndex((s) => s.nombre === nombre); // El método findIndex() devuelve el índice del primer elemento de un array que cumpla con la función de prueba proporcionada. En caso contrario devuelve -1.
 }
 
-function eliminarServicios() {
+function eliminarTodo() {
   localStorage.clear();
   arrayServicios = [];
   montos = [];
   servicios.innerHTML = "";
   total.innerHTML = "";
 }
-function suprimirServicio(servicio) {
-  return arrayServicios.filter((s) => s.nombre != servicio); // Devuelve una lista nueva donde se excluye la condicion (s.nombre != servicio) de manera indirecta lo elimina
+function suprimirServicio(id) {
+  return arrayServicios.filter((s) => s.id != id); // Devuelve una lista nueva donde se excluye la condicion (s.nombre != servicio) de manera indirecta lo elimina
 }
 
-function eliminarServicio() {
-  let servicio = prompt("Que servicio desea eliminar?").trim().toUpperCase();
-  let servicioEncontrado = buscarServicio(servicio);
-  if (servicioEncontrado == -1) {
-    console.log("El servicio indicado existe");
-  } else {
-    let nuevaLista = suprimirServicio(servicio);
-    arrayServicios = [...nuevaLista]; //  El contenido de nueva lista llena la lista original.
-  }
-}
 // SUMAR TOTAL
 
 // De los pedidos al usuario.
@@ -163,6 +171,7 @@ function servicioValidado(strServicioGasto) {
     let emergente = document.createElement("h3");
     emergente.className = "error";
     emergente.textContent = "ERROR: NOMBRE INVALIDO";
+    console.log("ERROR: NOMBRE INVALIDO");
     info.appendChild(emergente);
   }
   return validado;
@@ -184,25 +193,47 @@ function fechaValida(strFvto) {
 // GENERAR ETIQUETAS DE SERVICIOS CON DOM
 
 function GenerarDOMServicio(servicio) {
-  let fechaVto = new Date(servicio.fvto).toLocaleDateString();
-  let nuevoServicio = document.createElement("div");
-  nuevoServicio.className = "nuevoServicio";
-  nuevoServicio.innerHTML = `
-        <h3 class="nuevoServicio_nombre">Servicio: ${servicio.nombre}</h3>
-        <h4 class="nuevoServicio_monto">Importe : $${servicio.monto}.-</h4>
-        <h4 class="nuevoServicio_fecha">Vencimiento: ${fechaVto}</h4>
-    `;
-  servicios.appendChild(nuevoServicio);
+  let fecha = fechaFormateada(servicio.fvto);
+  let servicioDOM = document.createElement("div");
+  servicioDOM.id = `${servicio.id}`;
+  servicioDOM.className = "servicioCreado";
+  servicioDOM.innerHTML = `
+  <div class="servicio_info"> 
+        <h3 class="${servicio.id}_nombre">  ${servicio.nombre} 📃</h3>
+        <h4 class="${servicio.id}_monto"> M:  $${servicio.monto}.- 💵</h4>
+        <h4 class="${servicio.id}_fecha"> F:  ${fecha} 📅 </h4>
+    </div>
+  <span class="botonEliminar">❌</div>`;
+  servicios.append(servicioDOM);
+
+  let eliminarItemServicio = servicioDOM.querySelector(".botonEliminar");
+  eliminarItemServicio.addEventListener("click", () => {
+    eliminarServicio(servicio.id); // ELIMINO EL SERVICIO DEL ARRAYSERVICIOS
+    actualizarServiciosLS(); // ACTUALIZO ARRAY SERVICIO Y LS SERVICIOS
+    actualizarMontoLS(); // ACTUALIZO ARRAY MONTO Y LS MONTO
+    servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM
+  });
+
+  function eliminarServicio(id) {
+    let nuevaLista = suprimirServicio(id);
+    arrayServicios = [...nuevaLista]; //  El contenido de nueva lista llena la lista original.
+    montos = actualizarMonto();
+  }
 }
 
 function modificarDOMTotal(monto) {
-  total.innerHTML = "";
-  let importeTotal = document.createElement("div");
-  importeTotal.className = "importeTotal";
-  importeTotal.innerHTML = `
-        <h2 class="montoTotal">TOTAL: $${monto}</h3>
+  if (monto > 0) {
+    total.innerHTML = "";
+    let importeTotal = document.createElement("div");
+    importeTotal.className = "importeTotal";
+    importeTotal.innerHTML = `
+        <h2 class="montoTotal">💰 $${monto}.- (PESOS ARG) 💰</h3>
     `;
-  total.appendChild(importeTotal);
+    total.appendChild(importeTotal);
+  } else {
+    total.innerHTML = "";
+    console.log("No hay ningun servicio cargado");
+  }
 }
 
 function sumarImportes(montos) {
@@ -235,4 +266,70 @@ function obtenerMontosLS() {
     localStorage.setItem("Monto", "[]");
   }
   return monto;
+}
+
+// Metodo de fechas
+
+// function mesValido(numero) {
+//   let validado = false;
+//   if (0 < numero && numero <= 12) {
+//     validado = true;
+//   } else {
+//     let emergente = document.createElement("h3");
+//     emergente.className = "error";
+//     emergente.textContent = "ERROR: MES INVALIDO";
+//     info.appendChild(emergente);
+//   }
+//   return validado;
+// }
+
+// function diaValido(numero) {
+//   let validado = false;
+//   if (0 < numero && numero <= 31) {
+//     validado = true;
+//   } else {
+//     let emergente = document.createElement("h3");
+//     emergente.className = "error";
+//     emergente.textContent = "ERROR: DIA INVALIDO";
+//     info.appendChild(emergente);
+//   }
+//   return validado;
+// }
+
+// function obtenerFechaFormateada(fecha) {
+//   let dia = fecha.getDay();
+//   let mes = fecha.getMonth() + 1; // Los meses en JavaScript son base 0, por lo que se suma 1
+//   let anio = fecha.getFullYear();
+
+//   let diaFormateado = dia.toString().padStart(2, "0");
+//   let mesFormateado = mes.toString().padStart(2, "0");
+//   let anioFormateado = anio.toString().slice(-2);
+
+//   // se formatean los componentes asegurando que tengan dos dígitos utilizando el método padStart() y se extrae el año de dos dígitos utilizando el método slice().
+
+//   return `${diaFormateado}/${mesFormateado}/${anioFormateado}`;
+// }
+
+function fechaFormateada(fecha) {
+  fechaCortada = fecha.split("-"); // corto la fecha String por los "-" y lo guardo en un Array
+  fechaForma = `${fechaCortada[2]}/${fechaCortada[1]}`; // de ese array agarro el dia pos [2] y el mes [1]
+  return fechaForma;
+}
+function actualizarMonto() {
+  let montos = [];
+  arrayServicios.forEach((s) => {
+    montos.push(s.monto);
+  });
+  return montos;
+}
+
+function actualizarMontoLS() {
+  let montos = actualizarMonto();
+  let importeFinal = sumarImportes(montos);
+  localStorage.setItem("Monto", JSON.stringify(montos));
+  modificarDOMTotal(importeFinal);
+}
+
+function actualizarServiciosLS() {
+  localStorage.setItem("Servicios", JSON.stringify(arrayServicios));
 }
