@@ -400,4 +400,18 @@ function GenerarDOMServicioUSA(servicio, cotizacionDolar) {
     </div>
   <span class="botonEliminar">❌</div>`;
   servicios.append(servicioDOM);
+
+  let eliminarItemServicio = servicioDOM.querySelector(".botonEliminar");
+  eliminarItemServicio.addEventListener("click", () => {
+    eliminarServicio(servicio.id); // ELIMINO EL SERVICIO DEL ARRAYSERVICIOS
+    actualizarServiciosLS(); // ACTUALIZO ARRAY SERVICIO Y LS SERVICIOS
+    actualizarMontoLS(); // ACTUALIZO ARRAY MONTO Y LS MONTO
+    servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM
+  });
+
+  function eliminarServicio(id) {
+    let nuevaLista = suprimirServicio(id);
+    arrayServicios = [...nuevaLista]; //  El contenido de nueva lista llena la lista original.
+    montos = actualizarMonto();
+  }
 }
