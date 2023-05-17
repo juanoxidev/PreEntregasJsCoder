@@ -312,7 +312,7 @@ function obtenerMontosLS() {
 
 function fechaFormateada(fecha) {
   fechaCortada = fecha.split("-"); // corto la fecha String por los "-" y lo guardo en un Array
-  fechaForma = `${fechaCortada[2]}/${fechaCortada[1]}`; // de ese array agarro el dia pos [2] y el mes [1]
+  fechaForma = `${fechaCortada[2]}/${fechaCortada[1]}/${fechaCortada[0]}`; // de ese array agarro el dia pos [2], el mes [1], anio [0]
   return fechaForma;
 }
 function actualizarMonto() {
