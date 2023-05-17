@@ -495,15 +495,52 @@ function GenerarDOMServicioUSA(servicio, cotizacionDolar) {
 
   let eliminarItemServicio = servicioDOM.querySelector(".botonEliminar");
   eliminarItemServicio.addEventListener("click", () => {
-    eliminarServicio(servicio.id); // ELIMINO EL SERVICIO DEL ARRAYSERVICIOS
-    actualizarServiciosLS(); // ACTUALIZO ARRAY SERVICIO Y LS SERVICIOS
-    actualizarMontoLS(); // ACTUALIZO ARRAY MONTO Y LS MONTO
-    servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM;
-  });
+    Swal.fire({
+      background: "#000000",
+      color: "#ffffff",
+      position: "center",
+      title: "ESTAS SEGURO?",
+      text: "SE ELIMINARA EL SERVICIO",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, estoy seguro",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          background: "#000000",
+          color: "#ffffff",
+          position: "center",
+          title: "EL SERVICIO HA SIDO ELIMINADO",
+          icon: "success",
+        });
+        eliminarServicio(servicio.id); // ELIMINO EL SERVICIO DEL ARRAYSERVICIOS
+        actualizarServiciosLS(); // ACTUALIZO ARRAY SERVICIO Y LS SERVICIOS
+        actualizarMontoLS(); // ACTUALIZO ARRAY MONTO Y LS MONTO
+        servicios.removeChild(servicioDOM); // REMUEVO EL CONTENEDOR SERVICIO DOM
+        function eliminarServicio(id) {
+          let nuevaLista = suprimirServicio(id);
+          arrayServicios = [...nuevaLista]; //  El contenido de nueva lista llena la lista original.
+          montos = actualizarMonto();
 
-  function eliminarServicio(id) {
-    let nuevaLista = suprimirServicio(id);
-    arrayServicios = [...nuevaLista]; //  El contenido de nueva lista llena la lista original.
-    montos = actualizarMonto();
-  }
+          fetch("https://criptoya.com/api/dolar") // FETCH: me conecto con la api
+            .then((response) => response.json()) // PROMESA: que la respuesta q me de la api me lo convierta en un objeto
+            .then(({ blue }) => {
+              // PROMESA:consultamos por la data que nos da el .JSON, en este caso usamos desestrucutracion para traernos el dolar blue;
+              let montosDolar = [];
+              servicios.innerHTML = "";
+              arrayServicios.forEach((s) => {
+                let cotizacionDolar = s.monto / blue;
+                montosDolar.push(cotizacionDolar);
+                GenerarDOMServicioUSA(s, cotizacionDolar);
+              });
+              let importeFinal = sumarImportes(montosDolar);
+              modificarDOMTotalDolar(importeFinal);
+            });
+        }
+      }
+    });
+  });
 }
