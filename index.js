@@ -16,12 +16,7 @@ botonAsc.addEventListener("click", ordenarMaxMin);
 botonDesc.addEventListener("click", ordenarMinMax);
 eliminarTodos.addEventListener("click", eliminarTodo);
 pesoArg.addEventListener("click", cambiarApesos);
-dolar.addEventListener("click", () => {
-  cambiarADolar(); // API CRIPTOYA - COTIZACION DOLAR
-  setInterval(() => {
-    cambiarADolar();
-  }, 60000); // cada 1 min va a volver a volver a consultar el precio del dolar
-});
+dolar.addEventListener("click", cambiarADolar); // API CRIPTOYA - COTIZACION DOLAR);
 
 function validarForm() {
   let nombre = document.getElementById("nombre").value;
@@ -354,9 +349,11 @@ function cambiarApesos() {
 }
 
 function cambiarADolar() {
+  // solo los muestra como dolar, no los guarda en el LOCALSTORAGE ni en montos, solo lo muestra por pantalla como dolar a la cotizacion de cuando le damos click, no utilize un setInterval ya que cuando cambio a pesos, al minuto cambia nuevamente a dolar por mas que le haga clear
   fetch("https://criptoya.com/api/dolar") // FETCH: me conecto con la api
     .then((response) => response.json()) // PROMESA: que la respuesta q me de la api me lo convierta en un objeto
     .then(({ blue }) => {
+      // PROMESA:consultamos por la data que nos da el .JSON, en este caso usamos desestrucutracion para traernos el dolar blue;
       let montosDolar = [];
       servicios.innerHTML = "";
       arrayServicios.forEach((s) => {
@@ -367,7 +364,7 @@ function cambiarADolar() {
       let importeFinal = sumarImportes(montosDolar);
       modificarDOMTotalDolar(importeFinal);
       console.log(`Montos cambiados a Dolar (U$D) - Cotizacion $${blue}.-`);
-    }); // PROMESA:consultamos por la data que nos da el .JSON, en este caso usamos desestrucutracion para traernos el dolar blue;
+    });
 }
 
 function modificarDOMTotalDolar(monto) {
